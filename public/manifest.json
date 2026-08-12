@@ -1,0 +1,20 @@
+{
+  "name": "Bingo - Festa Nossa Senhora de Guadalupe",
+  "short_name": "Bingo Guadalupe",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0044aa",
+  "theme_color": "#0044aa",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

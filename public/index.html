@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<title>Bingo - Festa Nossa Senhora de Guadalupe</title>
+<link rel="manifest" href="/manifest.json">
+<script>
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("/service-worker.js");
+  }
+</script>
+
+<style>
+    :root {
+        --marked-color: yellow;
+        --font-color: white;
+    }
+
+    body {
+        background-color: #0044aa;
+        color: var(--font-color);
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+    }
+
+    /* HEADER */
+    #header {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr; /* garante centralização perfeita */
+        align-items: center;
+        min-height: 160px;
+        padding: 6px 20px;
+        gap: 20px;
+    }
+
+    /* LOGO FESTIVA */
+    #logo-img {
+        height: 160px;
+        width: auto;
+        justify-self: start; /* mantém à esquerda */
+    }
+
+    /* ÚLTIMA BOLA */
+    #last-ball {
+        height: 160px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 120px;
+        font-weight: bold;
+        gap: 20px;
+        animation: pop 0.4s ease-out;
+    }
+
+    /* IGREJA */
+    #church-wrapper {
+        height: 160px;
+        width: auto;
+        justify-self: end; /* mantém à direita */
+    }
+
+    #church-img {
+        height: 160px;
+        width: auto;
+        mask-image: linear-gradient(to right, transparent 0%, black 20%, black 80%, transparent 100%);
+        -webkit-mask-image: linear-gradient(to right, transparent 0%, black 20%, black 80%, transparent 100%);
+    }
+
+    @keyframes pop {
+        0% { transform: scale(0.5); opacity: 0; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* BOARD */
+    #board {
+        width: 90%;
+        margin: 10px auto;
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 6px;
+    }
+
+    .header-cell {
+        font-size: 40px;
+        font-weight: bold;
+        text-align: center;
+        padding: 6px;
+    }
+
+    .cell {
+        border: 2px solid white;
+        padding: 10px;
+        font-size: 32px;
+        text-align: center;
+        border-radius: 6px;
+        background-color: white;
+        color: black;
+        transition: 0.25s;
+    }
+
+    .cell.marked {
+        background-color: var(--marked-color);
+        font-weight: bold;
+        transform: scale(1.12);
+        box-shadow: 0 0 20px var(--marked-color);
+    }
+
+    /* CONTROLS */
+    #controls {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(0,0,0,0.6);
+        padding: 12px;
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+        z-index: 999;
+    }
+
+    #controls.hidden {
+        transform: translateY(100%);
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    #controls button, #controls select, #controls input[type=color] {
+        font-size: 18px;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+    #draw {
+        background-color: #00cc44;
+        color: black;
+    }
+
+    #reset {
+        background-color: #cc0000;
+        color: white;
+    }
+
+    .theme-select {
+        background-color: #333;
+        color: white;
+    }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div id="header">
+
+    <img id="logo-img" src="logofesta.png" alt="Logo da Festa">
+
+    <div id="last-ball">
+        <span id="last-letter">–</span>
+        <span id="last-number">–</span>
+    </div>
+
+    <div id="church-wrapper">
+        <img id="church-img" src="igreja.png" alt="Igreja Guadalupe">
+    </div>
+
+</div>
+
+<!-- BOARD -->
+<div id="board"></div>
+
+<!-- CONTROLS -->
+<div id="controls">
+    <button id="draw">Sortear</button>
+    <button id="reset">Reiniciar</button>
+
+    <label>Fundo:</label>
+    <input type="color" id="bgcolor" value="#0044aa">
+
+    <label>Letra:</label>
+    <input type="color" id="fontcolor" value="#ffffff">
+
+    <label>Marcadas:</label>
+    <input type="color" id="markedcolor" value="#ffff00">
+
+    <select id="theme" class="theme-select">
+        <option value="">Tema...</option>
+        <option value="yellow">Amarelo</option>
+        <option value="green">Verde</option>
+        <option value="red">Vermelho</option>
+        <option value="blue">Azul</option>
+        <option value="purple">Roxo</option>
+    </select>
+</div>
+
+<script>
+/* COLUMN DATA */
+const columns = {
+    B: Array.from({length: 15}, (_, i) => i + 1),
+    I: Array.from({length: 15}, (_, i) => i + 16),
+    N: Array.from({length: 15}, (_, i) => i + 31),
+    G: Array.from({length: 15}, (_, i) => i + 46),
+    O: Array.from({length: 15}, (_, i) => i + 61)
+};
+
+let remaining = Array.from({length: 75}, (_, i) => i + 1);
+
+/* GET LETTER FOR NUMBER */
+function letterFor(n) {
+    if (n <= 15) return "B";
+    if (n <= 30) return "I";
+    if (n <= 45) return "N";
+    if (n <= 60) return "G";
+    return "O";
+}
+
+/* DRAW BALL */
+function drawBall() {
+    if (remaining.length === 0) {
+        alert("Todas as bolas já foram sorteadas.");
+        return;
+    }
+
+    const index = Math.floor(Math.random() * remaining.length);
+    const number = remaining.splice(index, 1)[0];
+    const letter = letterFor(number);
+
+    const lastBall = document.getElementById("last-ball");
+    lastBall.style.animation = "none";
+    void lastBall.offsetWidth;
+    lastBall.style.animation = "pop 0.4s ease-out";
+
+    document.getElementById("last-letter").textContent = letter;
+    document.getElementById("last-number").textContent = number;
+
+    document.getElementById("cell-" + number).classList.add("marked");
+
+    document.activeElement.blur();
+}
+
+/* RESET GAME */
+function resetGame() {
+    if (!confirm("Tem certeza que deseja reiniciar o bingo?")) return;
+
+    remaining = Array.from({length: 75}, (_, i) => i + 1);
+
+    document.getElementById("last-letter").textContent = "–";
+    document.getElementById("last-number").textContent = "–";
+
+    document.querySelectorAll(".cell").forEach(c => c.classList.remove("marked"));
+
+    document.activeElement.blur();
+}
+
+/* BUILD BOARD */
+function buildBoard() {
+    const board = document.getElementById("board");
+    board.innerHTML = "";
+
+    ["B", "I", "N", "G", "O"].forEach(letter => {
+        const header = document.createElement("div");
+        header.className = "header-cell";
+        header.textContent = letter;
+        board.appendChild(header);
+    });
+
+    for (let row = 0; row < 15; row++) {
+        ["B", "I", "N", "G", "O"].forEach(letter => {
+            const number = columns[letter][row];
+            const div = document.createElement("div");
+            div.className = "cell";
+            div.id = "cell-" + number;
+            div.textContent = number;
+            board.appendChild(div);
+        });
+    }
+}
+
+/* BUTTONS */
+document.getElementById("draw").onclick = drawBall;
+document.getElementById("reset").onclick = resetGame;
+
+/* COLOR PICKERS */
+document.getElementById("bgcolor").oninput = e => {
+    document.body.style.backgroundColor = e.target.value;
+};
+
+document.getElementById("fontcolor").oninput = e => {
+    document.documentElement.style.setProperty("--font-color", e.target.value);
+};
+
+document.getElementById("markedcolor").oninput = e => {
+    document.documentElement.style.setProperty("--marked-color", e.target.value);
+};
+
+/* THEMES */
+document.getElementById("theme").onchange = e => {
+    const theme = e.target.value;
+
+    const themes = {
+        yellow: { bg: "#ffeb3b", font: "#000", marked: "#ff9800" },
+        green:  { bg: "#4caf50", font: "#000", marked: "#a5d6a7" },
+        red:    { bg: "#f44336", font: "#fff", marked: "#ff7961" },
+        blue:   { bg: "#2196f3", font: "#fff", marked: "#90caf9" },
+        purple: { bg: "#9c27b0", font: "#fff", marked: "#ce93d8" }
+    };
+
+    if (themes[theme]) {
+        document.body.style.backgroundColor = themes[theme].bg;
+        document.documentElement.style.setProperty("--font-color", themes[theme].font);
+        document.documentElement.style.setProperty("--marked-color", themes[theme].marked);
+    }
+};
+
+/* KEYBOARD SHORTCUTS */
+document.addEventListener("keydown", e => {
+    if (e.code === "Space") drawBall();
+
+    if (e.key.toLowerCase() === "m") {
+        const menu = document.getElementById("controls");
+        menu.classList.toggle("hidden");
+    }
+});
+
+/* INIT */
+buildBoard();
+</script>
+
+</body>
+</html>
