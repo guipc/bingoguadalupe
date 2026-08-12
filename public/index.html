@@ -298,10 +298,8 @@ document.getElementById("markedcolor").oninput = e => {
     document.documentElement.style.setProperty("--marked-color", e.target.value);
 };
 
-/* THEMES */
-document.getElementById("theme").onchange = e => {
-    const theme = e.target.value;
-
+/* FUNÇÃO DE TEMA CENTRALIZADA */
+function applyTheme(theme) {
     const themes = {
         yellow: { bg: "#ffeb3b", font: "#000", marked: "#ff9800" },
         green:  { bg: "#4caf50", font: "#000", marked: "#a5d6a7" },
@@ -315,20 +313,54 @@ document.getElementById("theme").onchange = e => {
         document.documentElement.style.setProperty("--font-color", themes[theme].font);
         document.documentElement.style.setProperty("--marked-color", themes[theme].marked);
     }
+}
+document.getElementById("theme").onchange = e => {
+    applyTheme(e.target.value);
 };
+
 
 /* KEYBOARD SHORTCUTS */
 document.addEventListener("keydown", e => {
-    if (e.code === "Space") drawBall();
+    const key = e.key.toLowerCase();
 
-    if (e.key.toLowerCase() === "m") {
-        const menu = document.getElementById("controls");
-        menu.classList.toggle("hidden");
+    switch (key) {
+        case " ": // espaço
+            drawBall();
+            break;
+
+        case "s": // start / reiniciar
+            resetGame();
+            break;
+
+        case "b": // tema azul
+            applyTheme("blue");
+            break;
+
+        case "y": // tema amarelo
+            applyTheme("yellow");
+            break;
+
+        case "g": // tema verde
+            applyTheme("green");
+            break;
+
+        case "r": // tema vermelho
+            applyTheme("red");
+            break;
+
+        case "p": // tema roxo
+            applyTheme("purple");
+            break;
+
+        case "m": // mostrar/ocultar menu
+            document.getElementById("controls").classList.toggle("hidden");
+            break;
     }
 });
 
 /* INIT */
 buildBoard();
+applyTheme("blue"); // inicia no tema azul
 </script>
 
 </body>
