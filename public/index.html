@@ -396,6 +396,16 @@ document.addEventListener("keydown", e => {
             applyTheme("fullhouse")
             break;
 
+        case "+":
+            currentZoom = Math.min(currentZoom + 1, 120); // limite superior
+            document.body.style.zoom = currentZoom + "%";
+            break;
+
+        case "-":
+            currentZoom = Math.max(currentZoom - 1, 40); // limite inferior
+            document.body.style.zoom = currentZoom + "%";
+            break;
+
     }
 });
 
@@ -408,6 +418,8 @@ function setTypeLabel(text) {
 buildBoard();
 applyTheme("blue"); // inicia no tema azul
 document.getElementById("controls").classList.add("hidden");
+let currentZoom = 65;
+document.body.style.zoom = currentZoom + "%";
 </script>
 
 </body>
