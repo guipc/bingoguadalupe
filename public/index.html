@@ -327,6 +327,7 @@ function applyTheme(theme) {
         purple: { bg: "#9c27b0", cellColor: "#fff", font: "#fff", marked: "#ce93d8", markedFont: "#000" },
         pink: { bg: "#f8bbd0", cellColor: "#fff", font: "#000", marked: "#e91e63", markedFont: "#fff" },
         white: { bg: "#ffffff", cellColor: "#ddd", font: "#000", marked: "#777", markedFont: "#fff" },
+        fullhouse: { bg: "#999", cellColor: "#fff", font: "#000", marked: "#ccc", markedFont: "#000" },
 
     };
 
@@ -336,6 +337,13 @@ function applyTheme(theme) {
         document.documentElement.style.setProperty("--cell-color", themes[theme].cellColor);
         document.documentElement.style.setProperty("--marked-color", themes[theme].marked);
         document.documentElement.style.setProperty("--marked-font-color", themes[theme].markedFont);
+    }
+
+    if (theme === 'fullhouse')
+    {
+        setTypeLabel("CARTELA CHEIA");
+    } else {
+        setTypeLabel("LINHA DA CARTELA");
     }
 }
 document.getElementById("theme").onchange = e => {
@@ -384,12 +392,8 @@ document.addEventListener("keydown", e => {
             document.getElementById("controls").classList.toggle("hidden");
             break;
 
-        case "c": // Cartela cheia
-            setTypeLabel("CARTELA CHEIA");
-            break;
-
-        case "l": // Linha da cartela
-            setTypeLabel("LINHA DA CARTELA");
+        case "f": // Cartela cheia
+            applyTheme("fullhouse")
             break;
 
     }
