@@ -1,9 +1,12 @@
-const CACHE = "bingo-cache-v8";
+const CACHE = "bingo-cache-v9";
 
 self.addEventListener("install", event => {
+    self.skipWaiting(); // força ativação imediata
+
     event.waitUntil(
         caches.open(CACHE).then(cache => {
             return cache.addAll([
+                "/",
                 "/",
                 "/index.html",
                 "/logofesta.png",
@@ -12,6 +15,10 @@ self.addEventListener("install", event => {
             ]);
         })
     );
+});
+
+self.addEventListener("activate", event => {
+    event.waitUntil(clients.claim()); // força o PWA a usar o SW novo
 });
 
 self.addEventListener("fetch", event => {

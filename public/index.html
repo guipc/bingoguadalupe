@@ -16,6 +16,7 @@
         --font-color: white;
         --marked-font-color: black;
         --cell-color: white;
+        --cell-border-color: white;
     }
 
     body {
@@ -92,9 +93,9 @@
     }
 
     .cell {
-        border: 2px solid white;
+        border: 2px solid var(--cell-border-color);
         padding: 0px;
-        font-size: 50px;
+        font-size: 40px;
         text-align: center;
         font-family: "Arial Black";
         border-radius: 6px;
@@ -321,14 +322,14 @@ document.getElementById("markedcolor").oninput = e => {
 /* FUNÇÃO DE TEMA CENTRALIZADA */
 function applyTheme(theme) {
     const themes = {
-        yellow: { bg: "#ffeb3b", cellColor: "#fff", font: "#000", marked: "#ff9800", markedFont: "#000"  },
-        green:  { bg: "#4caf50", cellColor: "#fff", font: "#000", marked: "#a5d6a7", markedFont: "#000" },
-        red:    { bg: "#f44336", cellColor: "#fff", font: "#fff", marked: "#ff7961", markedFont: "#000" },
-        blue:   { bg: "#2196f3", cellColor: "#fff", font: "#fff", marked: "#90caf9", markedFont: "#000" },
-        purple: { bg: "#9c27b0", cellColor: "#fff", font: "#fff", marked: "#ce93d8", markedFont: "#000" },
-        pink: { bg: "#f8bbd0", cellColor: "#fff", font: "#000", marked: "#e91e63", markedFont: "#fff" },
-        white: { bg: "#ffffff", cellColor: "#ddd", font: "#000", marked: "#777", markedFont: "#fff" },
-        fullhouse: { bg: "#999", cellColor: "#fff", font: "#000", marked: "#ccc", markedFont: "#000" },
+        yellow: { bg: "#ffeb3b", marked: "#fff", font: "#000", cellColor: "#ffeb3b", markedFont: "#000", cellBorder: "#000"  },
+        green:  { bg: "#66BB6A", marked: "#fff", font: "#000", cellColor: "#66BB6A", markedFont: "#000", cellBorder: "#000" },
+        red:    { bg: "#f44336", marked: "#fff", font: "#fff", cellColor: "#ff7961", markedFont: "#000", cellBorder: "#000" },
+        blue:   { bg: "#90caf9", marked: "#fff", font: "#000", cellColor: "#90caf9", markedFont: "#000", cellBorder: "#000" },
+        purple: { bg: "#9c27b0", marked: "#fff", font: "#fff", cellColor: "#ce93d8", markedFont: "#000", cellBorder: "#000" },
+        pink: { bg: "#f8bbd0", marked: "#fff", font: "#000", cellColor: "#f8bbd0", markedFont: "#000", cellBorder: "#000" },
+        white: { bg: "#ffffff", marked: "#bbb", font: "#000", cellColor: "#ffffff", markedFont: "#000", cellBorder: "#000" },
+        fullhouse: { bg: "#bbb", marked: "#fff", font: "#000", cellColor: "#bbb", markedFont: "#000", cellBorder: "#000" },
 
     };
 
@@ -338,6 +339,7 @@ function applyTheme(theme) {
         document.documentElement.style.setProperty("--cell-color", themes[theme].cellColor);
         document.documentElement.style.setProperty("--marked-color", themes[theme].marked);
         document.documentElement.style.setProperty("--marked-font-color", themes[theme].markedFont);
+        document.documentElement.style.setProperty("--cell-border-color", themes[theme].cellBorder);
     }
 
     if (theme === 'fullhouse')
