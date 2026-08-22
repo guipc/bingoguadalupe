@@ -1,4 +1,4 @@
-const CACHE = "bingo-cache-v7";
+const CACHE = "bingo-cache-v8";
 
 self.addEventListener("install", event => {
     event.waitUntil(
