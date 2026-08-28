@@ -54,3 +54,5 @@ self.addEventListener("fetch", event => {
         })
     );
 });
+
+self.VERSION = CACHE_NAME;

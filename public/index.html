@@ -423,6 +423,18 @@ applyTheme("pink");
 document.getElementById("controls").classList.add("hidden");
 let currentZoom = 65;
 document.body.style.zoom = currentZoom + "%";
+
+navigator.serviceWorker.ready.then(reg => {
+    fetch(reg.active.scriptURL)
+        .then(r => r.text())
+        .then(code => {
+            const match = code.match(/CACHE_NAME\s*=\s*"([^"]+)"/);
+            if (match) {
+                console.log("Versão ativa do SW:", match[1]);
+            }
+        });
+});
+
 </script>
 
 </body>
