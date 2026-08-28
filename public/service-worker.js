@@ -1,4 +1,4 @@
-const CACHE_NAME = "bingo-cache-v10";
+const CACHE_NAME = "1.0.0";
 const CORE_ASSETS = [
     "/",
     "/index.html",
